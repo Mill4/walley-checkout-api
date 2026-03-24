@@ -10,3 +10,7 @@
 - Added await for this call in RefundService: var order = await _orderService.GetOrderByIdAsync(orderId);
 - Task is never null here and the order == null check evaluates to false always even when order was not found and then NullReferenceException is thrown later
 - If you call order.Result when task is not awaited, the thread is blocked
+
+## Task 3
+- Added five unit tests, happy path for each method and then failure scenarios where applicable following similar pattern with RefundServiceTests
+- Used [Theory] for order creation failure tests to go through all the scenarios
