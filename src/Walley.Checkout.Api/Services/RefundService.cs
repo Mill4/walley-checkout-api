@@ -20,7 +20,8 @@ public class RefundService : IRefundService
     /// </summary>
     public async Task<Refund> ProcessRefundAsync(string orderId, decimal amount, string reason)
     {
-        var order = _orderService.GetOrderByIdAsync(orderId);
+        // await the order from the order service, Task is never null here    
+        var order = await _orderService.GetOrderByIdAsync(orderId);
 
         var refund = new Refund
         {
@@ -36,13 +37,13 @@ public class RefundService : IRefundService
             return refund;
         }
 
-        if (order.Result.Status != OrderStatus.Completed)
+        if (order.Status != OrderStatus.Completed)
         {
             refund.Status = RefundStatus.Rejected;
             return refund;
         }
 
-        if (amount > order.Result.TotalAmount)
+        if (amount > order.TotalAmount)
         {
             refund.Status = RefundStatus.Rejected;
             return refund;
