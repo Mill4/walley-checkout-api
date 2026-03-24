@@ -19,5 +19,6 @@ public enum OrderStatus
     Confirmed,
     Completed,
     Cancelled,
-    Refunded
+    Refunded,
+    Rejected
 }

@@ -43,6 +43,22 @@ public class OrdersController : ControllerBase
     // See README for requirements.
 
     /// <summary>
+    /// Create a new order based on customer name and email and order lines.
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<Order>> CreateOrder([FromBody] OrderCreationRequest request)
+    {
+        var order = await _orderService.CreateOrderAsync(request.CustomerName, request.CustomerEmail, request.Lines);
+
+        if (order.Status == OrderStatus.Rejected)
+        {
+            return UnprocessableEntity(order);
+        }
+
+        return CreatedAtAction(nameof(GetById), new { id = order.Id }, order);
+    }
+
+    /// <summary>
     /// Request a refund for an order.
     /// </summary>
     [HttpPost("{orderId}/refunds")]
@@ -68,4 +84,11 @@ public class RefundRequest
 {
     public decimal Amount { get; set; }
     public string Reason { get; set; } = string.Empty;
+}
+
+public class OrderCreationRequest
+{
+    public string CustomerName { get; set; } = string.Empty;
+    public string CustomerEmail { get; set; } = string.Empty;
+    public List<OrderLine> Lines { get; set; } = new();
 }

@@ -22,12 +22,43 @@ public class OrderService : IOrderService
         return Task.FromResult(order);
     }
 
-    public Task<Order> CreateOrderAsync(Order order)
+    /// <summary>
+    /// Creates a new order for given customer name and email and order lines.
+    /// The order should only be accepted if:
+    /// - Customer name and email are provided
+    /// - Order lines is not empty
+    /// - The quantity of each order line is greater than 0 and unit price is not negative
+    /// </summary>
+    public Task<Order> CreateOrderAsync(string customerName, string customerEmail, List<OrderLine> orderLines)
     {
-        order.Id = $"ORD-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
-        order.CreatedAt = DateTime.UtcNow;
-        order.Status = OrderStatus.Pending;
-        order.TotalAmount = order.Lines.Sum(l => l.LineTotal);
+        var order = new Order
+        {
+            Id = $"ORD-{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
+            CreatedAt = DateTime.UtcNow,
+            Status = OrderStatus.Pending,
+            CustomerName = customerName,
+            CustomerEmail = customerEmail,
+            Lines = orderLines,
+            TotalAmount = orderLines.Sum(l => l.LineTotal),
+        };
+
+        if (string.IsNullOrWhiteSpace(order.CustomerEmail) || string.IsNullOrWhiteSpace(order.CustomerName))
+        {
+            order.Status = OrderStatus.Rejected;
+            return Task.FromResult(order);
+        }
+
+        if (order.Lines == null || order.Lines.Count == 0)
+        {
+            order.Status = OrderStatus.Rejected;
+            return Task.FromResult(order);
+        }
+
+        if (order.Lines.Exists(x => x.Quantity <= 0 || x.UnitPrice < 0))
+        {
+            order.Status = OrderStatus.Rejected;
+            return Task.FromResult(order);
+        }
 
         _orders.Add(order);
 
