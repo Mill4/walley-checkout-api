@@ -25,17 +25,30 @@ public class ExceptionMiddleware
         {
             _logger.LogError(ex, "An unhandled exception occurred");
 
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            var response = new ApiErrorResponse
-            {
-                Message = "An unexpected error occurred.",
-                StatusCode = context.Response.StatusCode
-            };
-
-            var json = JsonSerializer.Serialize(response);
-            await context.Response.WriteAsync(json);
+            await HandleExceptionAsync(context, ex);
         }
+    }
+
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        var (statusCode, message, detail) = exception switch
+        {
+            OrderNotFoundException => ((int)HttpStatusCode.NotFound, "Resource Not Found", exception.Message),
+            InvalidOrderIdException => ((int)HttpStatusCode.BadRequest, "Validation Error", exception.Message),
+            _ => ((int)HttpStatusCode.InternalServerError, "Internal Server Error", "An unexpected error occured.")
+        };
+
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = statusCode;
+
+        var response = new ApiErrorResponse
+        {
+            Message = message,
+            StatusCode = statusCode,
+            Detail = detail
+        };
+
+        var json = JsonSerializer.Serialize(response);
+        await context.Response.WriteAsync(json);
     }
 }

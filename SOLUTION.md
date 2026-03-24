@@ -14,3 +14,9 @@
 ## Task 3
 - Added five unit tests, happy path for each method and then failure scenarios where applicable following similar pattern with RefundServiceTests
 - Used [Theory] for order creation failure tests to go through all the scenarios
+
+## Task 4
+- Added two custom exceptions for order not found and invalid id, the service will throw these
+- Added handling of these exceptions to middleware to return more useful message and status code
+- Changed GetOrderByIdAsync signature to non-nullable, it should always return the order or throw
+- Updated unit test accordingly

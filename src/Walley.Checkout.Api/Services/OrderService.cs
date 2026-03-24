@@ -16,9 +16,19 @@ public class OrderService : IOrderService
         return Task.FromResult<IEnumerable<Order>>(_orders);
     }
 
-    public Task<Order?> GetOrderByIdAsync(string id)
+    public Task<Order> GetOrderByIdAsync(string id)
     {
+        if (!id.StartsWith("ORD-"))
+        {
+            throw new InvalidOrderIdException($"Invalid order ID format: {id}");
+        }
+
         var order = _orders.FirstOrDefault(o => o.Id == id);
+        if (order == null)
+        {
+            throw new OrderNotFoundException($"Order with ID {id} not found");
+        }
+
         return Task.FromResult(order);
     }
 

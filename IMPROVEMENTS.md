@@ -7,4 +7,6 @@
 - It's not immediately obvious how the order status changes from Pending - Confirmed - Completed
 - The tests in OrderServiceTests are based on known seed data, would be better to initialize the test data in tests so the behavior is known
 - Currently only empty name and email is checked, could add email format validation
-- Also validations for products, their quantity and unit price, this API has no knowledge of such things and we take everything as face value
+- Also validations for products, their quantity and unit price. This API has no knowledge of such things and we take everything as face value
+- Error handling only done for GetById, could expand more throughout the project, also the id validation could be improved to something a bit more advanced
+- RefundServiceTests could use couple more with the added logic

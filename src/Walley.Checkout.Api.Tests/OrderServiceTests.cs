@@ -40,16 +40,31 @@ public class OrderServiceTests
     }
 
     [Fact]
-    public async Task GetOrderByIdAsync_WithNonExistingId_ReturnsNull()
+    public async Task GetOrderByIdAsync_WithInvalidId_ThrowsInvalidOrderIdException()
+    {
+        // Arrange
+        var invalidOrderId = "RANDOM-ORD";
+
+        // Act
+        Action action = () => _sut.GetOrderByIdAsync(invalidOrderId).Wait();
+
+        // Assert
+        action.Should().Throw<InvalidOrderIdException>()
+            .WithMessage($"Invalid order ID format: {invalidOrderId}");
+    }
+
+    [Fact]
+    public async Task GetOrderByIdAsync_WithNonExistingId_ThrowsOrderNotFoundException()
     {
         // Arrange
         var nonExistingOrderId = "ORD-999"; // Based on seeded data in OrderService constructor
 
         // Act
-        var result = await _sut.GetOrderByIdAsync(nonExistingOrderId);
+        Action action = () => _sut.GetOrderByIdAsync(nonExistingOrderId).Wait();
 
         // Assert
-        result.Should().BeNull();
+        action.Should().Throw<OrderNotFoundException>()
+            .WithMessage($"Order with ID {nonExistingOrderId} not found");
     }
 
     [Fact]
